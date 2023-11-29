@@ -1,35 +1,28 @@
 package com.uexcel.bankaccountvalidation.controller;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 
-import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientSsl;
-import org.springframework.context.annotation.Bean;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.uexcel.bankaccountvalidation.response.Body;
-import com.uexcel.bankaccountvalidation.response.ResponseModel;
-import com.uexcel.bankaccountvalidation.service.JsonPlaceHoldersService;
+import org.springframework.web.client.RestTemplate;
 
 @RestController
 public class Controller {
-    @GetMapping("/validate")
-    ResponseEntity<ResponseModel> validatAccount() {
+    @GetMapping("/validate/{param}")
+    Object validatAccount(@PathVariable("param") String string, Object r) {
+        String token = "sk_test_852abfa3389620b2c0830fa28e5f8339bcf46c4c";
+        String uri = "https://api.paystack.co/bank/resolve?" + string;
 
-        List<Body> list = new ArrayList<>();
-        ResponseModel response = new ResponseModel();
-        response.setStatus(true);
-        response.setMessage("Account number resolved");
-        Body body = new Body("0015658758", "ONWEIFENDI UDOKA EXCELLENCE", 9L);
-        list.add(body);
-        response.setData(list);
-        return ResponseEntity.ok(response);
-    }
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders header = new HttpHeaders();
+        header.set(HttpHeaders.AUTHORIZATION, "Bearer " + token);
 
-    @Bean
-    JsonPlaceHoldersService jsonPlaceHoldersService() {
+        HttpEntity<String> requestEntity = new HttpEntity<String>(uri, header);
+
+        return restTemplate.exchange(uri, HttpMethod.GET, requestEntity, Object.class).getBody();
 
     }
 
